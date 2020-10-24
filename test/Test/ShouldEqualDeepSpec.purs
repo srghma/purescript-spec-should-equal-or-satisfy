@@ -15,5 +15,17 @@ spec = do
   it "ShouldEqualDeep" do
     Just 1 `shouldSatisfyOrEqualDeep` Just 1
     Just 1 `shouldSatisfyOrEqualDeep` Just (Predicate \x -> x == 1)
+    ---
     Tuple 1 2 `shouldSatisfyOrEqualDeep` Tuple 1 (Predicate \x -> x == 2)
-    -- | { a: 1 } `shouldSatisfyOrEqualDeep` { a: 1 }
+    -- nested
+    Tuple 1 (Just 1) `shouldSatisfyOrEqualDeep` Tuple 1 (Just 1)
+    Tuple 1 (Just (Just 1)) `shouldSatisfyOrEqualDeep` Tuple 1 (Just (Just 1))
+    --
+    Tuple 1 (Just 1) `shouldSatisfyOrEqualDeep` Tuple 1 (Predicate \x -> x == Just 1)
+    Tuple 1 (Just 1) `shouldSatisfyOrEqualDeep` Tuple 1 (Just (Predicate \x -> x == 1))
+    ---
+    { a: 1 } `shouldSatisfyOrEqualDeep` { a: 1 }
+    { a: 1 } `shouldSatisfyOrEqualDeep` { a: (Predicate \x -> x == 1) }
+    ---
+    { } `shouldSatisfyOrEqualDeep` { }
+    { a: 1, b: 2 } `shouldSatisfyOrEqualDeep` { a: 1, b: (Predicate \x -> x == 2) }
