@@ -9,16 +9,16 @@ import Prim.Row as Row
 import Prim.RowList as RL
 import Record as Record
 
-class EqOrSatisfyImpl input inputOrPredicate | inputOrPredicate -> input where
-  eqOrSatisfyImpl :: input -> inputOrPredicate -> Boolean
+-- | class EqOrSatisfyImpl input inputOrPredicate | inputOrPredicate -> input where
+-- |   eqOrSatisfyImpl :: input -> inputOrPredicate -> Boolean
 
-instance eqOrSatisfyImplPred :: EqOrSatisfyImpl a (Predicate a) where
-  eqOrSatisfyImpl a (Predicate b) = b a
+-- | instance eqOrSatisfyImplPred :: EqOrSatisfyImpl a (Predicate a) where
+-- |   eqOrSatisfyImpl a (Predicate b) = b a
 
-else
+-- | else
 
-instance eqOrSatisfyImplEq :: Eq a => EqOrSatisfyImpl a a where
-  eqOrSatisfyImpl a b = a == b
+-- | instance eqOrSatisfyImplEq :: Eq a => EqOrSatisfyImpl a a where
+-- |   eqOrSatisfyImpl a b = a == b
 
 ---------------
 
@@ -42,15 +42,15 @@ instance genericEqProduct :: (GenericEqOrSatisfy a a', GenericEqOrSatisfy b b') 
 instance genericEqConstructor :: GenericEqOrSatisfy a a' => GenericEqOrSatisfy (Constructor name a) (Constructor name a') where
   genericShould (Constructor a1) (Constructor a2) = genericShould a1 a2
 
-instance genericEq1 :: GenericEqOrSatisfy (Argument a) (Argument (Predicate a)) where
-  genericShould (Argument a) (Argument (Predicate b)) = b a
+-- | instance genericEq1 :: GenericEqOrSatisfy (Argument a) (Argument (Predicate a)) where
+-- |   genericShould (Argument a) (Argument (Predicate b)) = b a
 
-else
+-- | else
 
-instance genericEq2 :: Eq a => GenericEqOrSatisfy (Argument a) (Argument a) where
-  genericShould (Argument a) (Argument b) = a == b
+-- | instance genericEq2 :: Eq a => GenericEqOrSatisfy (Argument a) (Argument a) where
+-- |   genericShould (Argument a) (Argument b) = a == b
 
-else
+-- | else
 
 instance genericPredicateImpl :: EqOrSatisfy a b => GenericEqOrSatisfy (Argument a) (Argument b) where
   genericShould (Argument a) (Argument b) = should a b
@@ -75,7 +75,7 @@ class RecordIndexOrSatisfy
 instance recordIndexOrSatisfyCons ::
   ( IsSymbol name
   , RecordIndexOrSatisfy inputRowList'Tail inputOrPredicateRowList'Tail inputRow inputOrPredicateRow
-  , EqOrSatisfyImpl inputRowList'Val inputOrPredicateRowList'Val
+  , EqOrSatisfy inputRowList'Val inputOrPredicateRowList'Val
   , Row.Cons name inputRowList'Val trash1 inputRow
   , Row.Cons name inputOrPredicateRowList'Val trash2 inputOrPredicateRow
   ) => RecordIndexOrSatisfy
@@ -84,7 +84,7 @@ instance recordIndexOrSatisfyCons ::
   inputRow
   inputOrPredicateRow
   where
-  recordIndexOrSatisfy _ _ input inputOrPredicate = eqOrSatisfyImpl a b && rest
+  recordIndexOrSatisfy _ _ input inputOrPredicate = should a b && rest
     where
       a :: inputRowList'Val
       a = Record.get (SProxy :: SProxy name) input
@@ -100,11 +100,16 @@ instance recordIndexOrSatisfyNil :: RecordIndexOrSatisfy RL.Nil RL.Nil inputRow 
 
 ---------------
 
-class EqOrSatisfy input inputOrPredicate | inputOrPredicate -> input where
+class EqOrSatisfy input inputOrPredicate where
   should :: input -> inputOrPredicate -> Boolean
 
 instance eqOrSatisfy1 :: EqOrSatisfy a (Predicate a) where
   should a (Predicate b) = b a
+
+else
+
+instance eqOrSatisfy2 :: Eq a => EqOrSatisfy a a where
+  should a b = a == b
 
 else
 

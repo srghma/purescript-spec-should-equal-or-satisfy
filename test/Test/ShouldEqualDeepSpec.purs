@@ -22,7 +22,7 @@ spec = do
     Tuple 1 (Just (Just 1)) `shouldSatisfyOrEqualDeep` Tuple 1 (Just (Just 1))
     --
     Tuple 1 (Just 1) `shouldSatisfyOrEqualDeep` Tuple 1 (Predicate \x -> x == Just 1)
-    -- | Tuple 1 (Just 1) `shouldSatisfyOrEqualDeep` Tuple 1 (Just (Predicate \(x :: Int) -> x == 1))
+    Tuple 1 (Just 1) `shouldSatisfyOrEqualDeep` Tuple 1 (Just (Predicate \(x :: Int) -> x == 1))
     ---
     { a: 1 } `shouldSatisfyOrEqualDeep` { a: 1 }
     { a: 1 } `shouldSatisfyOrEqualDeep` { a: (Predicate \x -> x == 1) }
@@ -31,7 +31,7 @@ spec = do
     { a: 1, b: 2 } `shouldSatisfyOrEqualDeep` { a: 1, b: (Predicate \x -> x == 2) }
     --
     { a: 1, b: { c: 2 } } `shouldSatisfyOrEqualDeep` { a: 1, b: { c: 2 } }
-    -- | { a: 1, b: { c: 2 } } `shouldSatisfyOrEqualDeep` { a: 1, b: { c: (Predicate \x -> x == 2) } }
+    { a: 1, b: { c: 2 } } `shouldSatisfyOrEqualDeep` { a: 1, b: { c: (Predicate \x -> x == 2) } }
     --
     { a: 1, b: { c: Just 1 } } `shouldSatisfyOrEqualDeep` { a: 1, b: { c: Just 1 } }
     { a: 1, b: { c: Just { d: 1 } } } `shouldSatisfyOrEqualDeep` { a: 1, b: { c: Just { d: 1 } } }
