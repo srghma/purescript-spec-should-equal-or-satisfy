@@ -22,7 +22,7 @@ instance eqOrSatisfyImplEq :: Eq a => EqOrSatisfyImpl a a where
 
 ---------------
 
-class GenericEqOrSatisfy input inputOrPredicate where
+class GenericEqOrSatisfy input inputOrPredicate | inputOrPredicate -> input where
   genericShould :: input -> inputOrPredicate -> Boolean
 
 instance genericEqNoConstructors :: GenericEqOrSatisfy NoConstructors NoConstructors where
@@ -42,8 +42,18 @@ instance genericEqProduct :: (GenericEqOrSatisfy a a', GenericEqOrSatisfy b b') 
 instance genericEqConstructor :: GenericEqOrSatisfy a a' => GenericEqOrSatisfy (Constructor name a) (Constructor name a') where
   genericShould (Constructor a1) (Constructor a2) = genericShould a1 a2
 
-instance genericPredicateImpl :: EqOrSatisfyImpl a b => GenericEqOrSatisfy (Argument a) (Argument b) where
-  genericShould (Argument a) (Argument b) = eqOrSatisfyImpl a b
+instance genericEq1 :: GenericEqOrSatisfy (Argument a) (Argument (Predicate a)) where
+  genericShould (Argument a) (Argument (Predicate b)) = b a
+
+else
+
+instance genericEq2 :: Eq a => GenericEqOrSatisfy (Argument a) (Argument a) where
+  genericShould (Argument a) (Argument b) = a == b
+
+else
+
+instance genericPredicateImpl :: EqOrSatisfy a b => GenericEqOrSatisfy (Argument a) (Argument b) where
+  genericShould (Argument a) (Argument b) = should a b
 
 ---------------
 
@@ -53,7 +63,7 @@ class RecordIndexOrSatisfy
   (inputRow :: Row Type)
   (inputOrPredicateRow :: Row Type)
   | inputRowList -> inputRow
-  , inputOrPredicateRowList -> inputOrPredicateRow
+  , inputOrPredicateRowList -> inputOrPredicateRow inputRowList inputRow
   where
   recordIndexOrSatisfy
     :: RLProxy inputRowList
@@ -92,6 +102,11 @@ instance recordIndexOrSatisfyNil :: RecordIndexOrSatisfy RL.Nil RL.Nil inputRow 
 
 class EqOrSatisfy input inputOrPredicate | inputOrPredicate -> input where
   should :: input -> inputOrPredicate -> Boolean
+
+instance eqOrSatisfy1 :: EqOrSatisfy a (Predicate a) where
+  should a (Predicate b) = b a
+
+else
 
 instance eqOrSatisfyRecord ::
   ( RL.RowToList inputRow inputRowList
