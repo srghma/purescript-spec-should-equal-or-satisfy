@@ -1,12 +1,14 @@
 module Test.Spec.ShouldEqualOrSatisfy where
 
-import Protolude
+import Prelude
 
+import Control.Monad.Error.Class (class MonadThrow)
 import Data.Array as Array
 import Data.Foldable (all)
-import Data.Generic.Rep (Argument(..), Constructor(..), NoArguments, NoConstructors, Product(..), Sum(..), from)
+import Data.Generic.Rep (class Generic, Argument(..), Constructor(..), NoArguments, NoConstructors, Product(..), Sum(..), from)
 import Data.Predicate (Predicate(..))
-import Data.Tuple (curry)
+import Data.Tuple (curry, uncurry)
+import Effect.Exception (Error)
 import Prim.Row as Row
 import Prim.RowList as RL
 import Record as Record

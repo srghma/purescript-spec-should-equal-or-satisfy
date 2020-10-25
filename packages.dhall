@@ -1,4 +1,4 @@
-let upstream = ./upstream.dhall
+let upstream = ../upstream.dhall
 
 in  ( upstream
       // https://raw.githubusercontent.com/srghma/my-purescript-package-sets/b329910/packages.dhall sha256:773dba33bac1ce8395e89554cc6ee5ea86112eceb54e7236171625d193c1e000
@@ -11,16 +11,4 @@ in  ( upstream
     with strings.version = "unix-parenthesis"
     with tuples.repo = "https://github.com/srghma/purescript-tuples.git"
     with tuples.version = "master"
-    with unfoldable.repo =
-        "https://github.com/purescript/purescript-unfoldable.git"
-    with unfoldable.version = "master"
-    with foldable-traversable.version = "master"
-    with arrays.repo = "https://github.com/srghma/purescript-arrays.git"
-    with arrays.version = "fix-foldable1"
-    with lazy.repo = "https://github.com/srghma/purescript-lazy.git"
-    with lazy.version = "fix-foldable1"
-    with free.repo = "https://github.com/srghma/purescript-free.git"
-    with free.version = "fix-foldable1"
-    with variant.repo = "https://github.com/JordanMartinez/purescript-variant.git"
-    with variant.version = "polykindsUpdate"
     with prelude.version = "master"
