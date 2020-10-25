@@ -1,10 +1,10 @@
 module Test.Spec.ShouldPassSpecification where
 
 import Protolude
-import Data.Generic.Rep
-import Data.Predicate
-import Test.Spec.Assertions
-import Type.Prelude (class IsSymbol, RLProxy(RLProxy), RProxy, SProxy(SProxy), reflectSymbol)
+import Data.Generic.Rep (Argument(..), Constructor(..), NoArguments, NoConstructors, Product(..), Sum(..), from)
+import Data.Predicate (Predicate(..))
+import Test.Spec.Assertions (fail)
+import Type.Prelude (class IsSymbol, RLProxy(RLProxy), SProxy(SProxy))
 import Prim.Row as Row
 import Prim.RowList as RL
 import Record as Record

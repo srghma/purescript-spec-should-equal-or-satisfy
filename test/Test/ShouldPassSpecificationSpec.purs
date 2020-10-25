@@ -1,18 +1,17 @@
 module Test.ShouldPassSpecificationSpec where
 
-import Data.Maybe
-import Data.Predicate
-import Data.Tuple
+import Data.Maybe (Maybe(..))
+import Data.Predicate (Predicate(..))
+import Data.Tuple (Tuple(..))
 import Prelude
-import Test.Spec.ShouldPassSpecification
+import Test.Spec.ShouldPassSpecification (shouldPassSpecification)
 
 import Control.Monad.Error.Class (class MonadError, throwError, try)
 import Data.Either (Either(..))
-import Effect.Console (log)
 import Effect.Exception (Error)
 import Effect.Exception as Exception
-import Test.Spec (Spec, it, describe)
-import Test.Spec.Assertions (shouldEqual, shouldNotEqual, expectError)
+import Test.Spec (Spec, it)
+import Test.Spec.Assertions (shouldEqual)
 
 expectErrorWithMessage
   :: forall m t
