@@ -1,13 +1,17 @@
 module Test.Spec.ShouldEqualOrSatisfy where
 
 import Protolude
+
+import Data.Array as Array
+import Data.Foldable (all)
 import Data.Generic.Rep (Argument(..), Constructor(..), NoArguments, NoConstructors, Product(..), Sum(..), from)
 import Data.Predicate (Predicate(..))
-import Test.Spec.Assertions (fail)
-import Type.Prelude (class IsSymbol, RLProxy(RLProxy), SProxy(SProxy))
+import Data.Tuple (curry)
 import Prim.Row as Row
 import Prim.RowList as RL
 import Record as Record
+import Test.Spec.Assertions (fail)
+import Type.Prelude (class IsSymbol, RLProxy(RLProxy), SProxy(SProxy))
 
 class EqualOrSatisfiesGeneric input inputOrPredicate | inputOrPredicate -> input where
   equalOrSatisfiesGeneric :: input -> inputOrPredicate -> Boolean
@@ -87,6 +91,14 @@ else
 
 instance equalOrSatisfies'Eq :: Eq a => EqualOrSatisfies a a where
   equalOrSatisfies a b = a == b
+
+else
+
+instance equalOrSatisfies'Array :: EqualOrSatisfies a b => EqualOrSatisfies (Array a) (Array b) where
+  equalOrSatisfies as bs =
+    if Array.length as == Array.length bs
+      then all (uncurry equalOrSatisfies) $ Array.zip as bs
+      else false
 
 else
 

@@ -22,7 +22,7 @@ expectErrorWithMessage
 expectErrorWithMessage message a = do
   e <- try a
   case e of
-    Left e -> Exception.message e `shouldEqual` message
+    Left e' -> Exception.message e' `shouldEqual` message
     Right _ -> throwError $ Exception.error "Expected error"
 
 spec :: Spec Unit
@@ -36,6 +36,7 @@ spec = do
     Just 1 `shouldEqualOrSatisfy` Just (Predicate \x -> x == 1)
     ---
     Just [1] `shouldEqualOrSatisfy` Just [1]
+    Just [1] `shouldEqualOrSatisfy` Just [(Predicate \x -> x == 1)]
     ---
     Tuple 1 2 `shouldEqualOrSatisfy` Tuple 1 (Predicate \x -> x == 2)
     -- nested
