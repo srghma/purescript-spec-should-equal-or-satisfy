@@ -263,14 +263,14 @@
     , version =
         "v1.1.1"
     }
--- , assert =
---     { dependencies =
---         [ "console", "effect", "prelude" ]
---     , repo =
---         "https://github.com/purescript/purescript-assert.git"
---     , version =
---         "master"
---     }
+, `assert` =
+    { dependencies =
+        [ "console", "effect", "prelude" ]
+    , repo =
+        "https://github.com/purescript/purescript-assert.git"
+    , version =
+        "master"
+    }
 , avar =
     { dependencies =
         [ "aff", "effect", "either", "exceptions", "functions", "maybe" ]

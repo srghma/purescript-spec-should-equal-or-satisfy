@@ -9,55 +9,32 @@ import Prim.Row as Row
 import Prim.RowList as RL
 import Record as Record
 
--- | class EqOrSatisfyImpl input inputOrPredicate | inputOrPredicate -> input where
--- |   eqOrSatisfyImpl :: input -> inputOrPredicate -> Boolean
+class PassesSpecGeneric input inputOrPredicate | inputOrPredicate -> input where
+  passesSpecGeneric :: input -> inputOrPredicate -> Boolean
 
--- | instance eqOrSatisfyImplPred :: EqOrSatisfyImpl a (Predicate a) where
--- |   eqOrSatisfyImpl a (Predicate b) = b a
+instance passesSpecGeneric'NoConstructors :: PassesSpecGeneric NoConstructors NoConstructors where
+  passesSpecGeneric _ _ = true
 
--- | else
+instance passesSpecGeneric'NoArguments :: PassesSpecGeneric NoArguments NoArguments where
+  passesSpecGeneric _ _ = true
 
--- | instance eqOrSatisfyImplEq :: Eq a => EqOrSatisfyImpl a a where
--- |   eqOrSatisfyImpl a b = a == b
+instance passesSpecGeneric'Sum :: (PassesSpecGeneric a a', PassesSpecGeneric b b') => PassesSpecGeneric (Sum a b) (Sum a' b') where
+  passesSpecGeneric (Inl a1) (Inl a2) = passesSpecGeneric a1 a2
+  passesSpecGeneric (Inr b1) (Inr b2) = passesSpecGeneric b1 b2
+  passesSpecGeneric _ _ = false
 
----------------
+instance passesSpecGeneric'Product :: (PassesSpecGeneric a a', PassesSpecGeneric b b') => PassesSpecGeneric (Product a b) (Product a' b') where
+  passesSpecGeneric (Product a1 b1) (Product a2 b2) = passesSpecGeneric a1 a2 && passesSpecGeneric b1 b2
 
-class GenericEqOrSatisfy input inputOrPredicate | inputOrPredicate -> input where
-  genericShould :: input -> inputOrPredicate -> Boolean
+instance passesSpecGeneric'Constructor :: PassesSpecGeneric a a' => PassesSpecGeneric (Constructor name a) (Constructor name a') where
+  passesSpecGeneric (Constructor a1) (Constructor a2) = passesSpecGeneric a1 a2
 
-instance genericEqNoConstructors :: GenericEqOrSatisfy NoConstructors NoConstructors where
-  genericShould _ _ = true
-
-instance genericEqNoArguments :: GenericEqOrSatisfy NoArguments NoArguments where
-  genericShould _ _ = true
-
-instance genericEqSum :: (GenericEqOrSatisfy a a', GenericEqOrSatisfy b b') => GenericEqOrSatisfy (Sum a b) (Sum a' b') where
-  genericShould (Inl a1) (Inl a2) = genericShould a1 a2
-  genericShould (Inr b1) (Inr b2) = genericShould b1 b2
-  genericShould _ _ = false
-
-instance genericEqProduct :: (GenericEqOrSatisfy a a', GenericEqOrSatisfy b b') => GenericEqOrSatisfy (Product a b) (Product a' b') where
-  genericShould (Product a1 b1) (Product a2 b2) = genericShould a1 a2 && genericShould b1 b2
-
-instance genericEqConstructor :: GenericEqOrSatisfy a a' => GenericEqOrSatisfy (Constructor name a) (Constructor name a') where
-  genericShould (Constructor a1) (Constructor a2) = genericShould a1 a2
-
--- | instance genericEq1 :: GenericEqOrSatisfy (Argument a) (Argument (Predicate a)) where
--- |   genericShould (Argument a) (Argument (Predicate b)) = b a
-
--- | else
-
--- | instance genericEq2 :: Eq a => GenericEqOrSatisfy (Argument a) (Argument a) where
--- |   genericShould (Argument a) (Argument b) = a == b
-
--- | else
-
-instance genericPredicateImpl :: EqOrSatisfy a b => GenericEqOrSatisfy (Argument a) (Argument b) where
-  genericShould (Argument a) (Argument b) = should a b
+instance passesSpecGeneric'Nested :: PassesSpec a b => PassesSpecGeneric (Argument a) (Argument b) where
+  passesSpecGeneric (Argument a) (Argument b) = passesSpec a b
 
 ---------------
 
-class RecordIndexOrSatisfy
+class PassesSpecRecord
   (inputRowList :: RL.RowList Type)
   (inputOrPredicateRowList :: RL.RowList Type)
   (inputRow :: Row Type)
@@ -65,26 +42,26 @@ class RecordIndexOrSatisfy
   | inputRowList -> inputRow
   , inputOrPredicateRowList -> inputOrPredicateRow inputRowList inputRow
   where
-  recordIndexOrSatisfy
+  passesSpecRecord
     :: RLProxy inputRowList
     -> RLProxy inputOrPredicateRowList
     -> Record inputRow
     -> Record inputOrPredicateRow
     -> Boolean
 
-instance recordIndexOrSatisfyCons ::
+instance passesSpecRecord'Cons ::
   ( IsSymbol name
-  , RecordIndexOrSatisfy inputRowList'Tail inputOrPredicateRowList'Tail inputRow inputOrPredicateRow
-  , EqOrSatisfy inputRowList'Val inputOrPredicateRowList'Val
+  , PassesSpecRecord inputRowList'Tail inputOrPredicateRowList'Tail inputRow inputOrPredicateRow
+  , PassesSpec inputRowList'Val inputOrPredicateRowList'Val
   , Row.Cons name inputRowList'Val trash1 inputRow
   , Row.Cons name inputOrPredicateRowList'Val trash2 inputOrPredicateRow
-  ) => RecordIndexOrSatisfy
+  ) => PassesSpecRecord
   (RL.Cons name inputRowList'Val inputRowList'Tail)
   (RL.Cons name inputOrPredicateRowList'Val inputOrPredicateRowList'Tail)
   inputRow
   inputOrPredicateRow
   where
-  recordIndexOrSatisfy _ _ input inputOrPredicate = should a b && rest
+  passesSpecRecord _ _ input inputOrPredicate = passesSpec a b && rest
     where
       a :: inputRowList'Val
       a = Record.get (SProxy :: SProxy name) input
@@ -93,52 +70,52 @@ instance recordIndexOrSatisfyCons ::
       b = Record.get (SProxy :: SProxy name) inputOrPredicate
 
       rest :: Boolean
-      rest = recordIndexOrSatisfy (RLProxy :: RLProxy inputRowList'Tail) (RLProxy :: RLProxy inputOrPredicateRowList'Tail) input inputOrPredicate
+      rest = passesSpecRecord (RLProxy :: RLProxy inputRowList'Tail) (RLProxy :: RLProxy inputOrPredicateRowList'Tail) input inputOrPredicate
 
-instance recordIndexOrSatisfyNil :: RecordIndexOrSatisfy RL.Nil RL.Nil inputRow inputOrPredicateRow where
-  recordIndexOrSatisfy _ _ _ _ = true
+instance passesSpecRecord'Nil :: PassesSpecRecord RL.Nil RL.Nil inputRow inputOrPredicateRow where
+  passesSpecRecord _ _ _ _ = true
 
 ---------------
 
-class EqOrSatisfy input inputOrPredicate where
-  should :: input -> inputOrPredicate -> Boolean
+class PassesSpec input inputOrPredicate where
+  passesSpec :: input -> inputOrPredicate -> Boolean
 
-instance eqOrSatisfy1 :: EqOrSatisfy a (Predicate a) where
-  should a (Predicate b) = b a
-
-else
-
-instance eqOrSatisfy2 :: Eq a => EqOrSatisfy a a where
-  should a b = a == b
+instance passesSpec'Predicate :: PassesSpec a (Predicate a) where
+  passesSpec a (Predicate b) = b a
 
 else
 
-instance eqOrSatisfyRecord ::
+instance passesSpec'Eq :: Eq a => PassesSpec a a where
+  passesSpec a b = a == b
+
+else
+
+instance passesSpec'Record ::
   ( RL.RowToList inputRow inputRowList
   , RL.RowToList inputOrPredicateRow inputOrPredicateRowList
-  , RecordIndexOrSatisfy inputRowList inputOrPredicateRowList inputRow inputOrPredicateRow
+  , PassesSpecRecord inputRowList inputOrPredicateRowList inputRow inputOrPredicateRow
   ) =>
-  EqOrSatisfy (Record inputRow) (Record inputOrPredicateRow) where
-  should = recordIndexOrSatisfy (RLProxy :: RLProxy inputRowList) (RLProxy :: RLProxy inputOrPredicateRowList)
+  PassesSpec (Record inputRow) (Record inputOrPredicateRow) where
+  passesSpec = passesSpecRecord (RLProxy :: RLProxy inputRowList) (RLProxy :: RLProxy inputOrPredicateRowList)
 
 else
 
-instance eqOrSatisfyGeneric ::
+instance passesSpec'Generic ::
   ( Generic input inputRep
   , Generic inputOrPredicate inputOrPredicateRep
-  , GenericEqOrSatisfy inputRep inputOrPredicateRep
+  , PassesSpecGeneric inputRep inputOrPredicateRep
   ) =>
-  EqOrSatisfy input inputOrPredicate where
-  should input inputOrPredicate = genericShould (from input) (from inputOrPredicate)
+  PassesSpec input inputOrPredicate where
+  passesSpec input inputOrPredicate = passesSpecGeneric (from input) (from inputOrPredicate)
 
-shouldSatisfyOrEqualDeep
+shouldPassSpec
   :: forall input inputOrPredicate m
-   . EqOrSatisfy input inputOrPredicate
+   . PassesSpec input inputOrPredicate
   => MonadThrow Error m
   => Show input
   => input
   -> inputOrPredicate
   -> m Unit
-shouldSatisfyOrEqualDeep input inputOrPredicate =
-  when (not $ should input inputOrPredicate) $
+shouldPassSpec input inputOrPredicate =
+  when (not $ passesSpec input inputOrPredicate) $
     fail $ show input <> " ≠ spec"
